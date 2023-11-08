@@ -1,0 +1,13 @@
+DROP TABLE ItemPedido;
+DROP TABLE Pedido;
+DROP TABLE Acessorio;
+DROP TABLE Fornecedor;
+DROP TABLE Nota_Fiscal;
+DROP TABLE Carro;
+DROP TABLE Revisao;
+DROP TABLE Cliente;
+DROP TABLE Funcionario;
+DROP TABLE PessoaFisica;
+DROP TABLE PessoaJuridica;
+DROP TABLE Pessoa;
+DROP TABLE Modelo;

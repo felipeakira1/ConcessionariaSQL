@@ -30,4 +30,4 @@ BEGIN TRANSACTION
 	ELSE
 		ROLLBACK TRANSACTION;
 
-EXECUTE inserirFuncionario 3, 'Rua das Palmeiras, 456', '(55) 9876-5432', 'funcionario@gmail.com', '123.123.123-01', 'Joao da Silva', '2004-02-02', 3500.00;
+EXECUTE inserirFuncionario 4, 'Rua das Palmeiras, 456', '(55) 9876-5432', 'funcionario@gmail.com', '123.123.123-01', 'Joao da Silva', '2004-02-02', 3500.00;

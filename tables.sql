@@ -56,8 +56,10 @@ CREATE TABLE Modelo (
 
 CREATE TABLE Revisao (
     codigo_revisao INT PRIMARY KEY,
-    data_entrada DATETIME,
-    data_saida DATETIME,
+    data_entrada DATE,
+    hora_entrada TIME,
+    data_saida DATE,
+    hora_saida TIME,
     observacoes TEXT,
     resultados TEXT
 );

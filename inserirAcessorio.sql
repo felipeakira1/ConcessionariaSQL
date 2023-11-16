@@ -17,4 +17,4 @@ BEGIN TRANSACTION
 		ROLLBACK TRANSACTION;
 
 
-EXEC inserirAcessorio 1, 'Tapetes de Borracha', 'Tapetes de borracha duráveis para proteger o interior do carro.', 29.99, 'Interior', '1, 3, 5', 100, 1;
+EXEC inserirAcessorio 1, 'Tapetes de Borracha', 'Tapetes de borracha duráveis para proteger o interior do carro.', 29.99, 'Interior', '1, 3, 5', 100, 3;

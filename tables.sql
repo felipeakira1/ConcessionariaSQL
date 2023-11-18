@@ -33,7 +33,6 @@ CREATE TABLE Funcionario (
     FOREIGN KEY (codigo_funcionario) REFERENCES PessoaFisica(codigo_pessoaFisica)
 );
 
--- Nao criei ainda
 CREATE TABLE Cliente (
     codigo_cliente INT PRIMARY KEY,
     tipo_pessoa VARCHAR(20), 

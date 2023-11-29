@@ -57,6 +57,7 @@ BEGIN TRANSACTION
 	ELSE
 		ROLLBACK TRANSACTION;
 
+-- Remover cliente pessoa física
 CREATE PROCEDURE removerClientePessoaFisica
 @codigo INT
 AS

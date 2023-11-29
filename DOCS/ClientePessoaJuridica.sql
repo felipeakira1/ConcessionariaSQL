@@ -1,4 +1,3 @@
-
 CREATE PROCEDURE inserirClientePessoaJuridica
 @codigo INT,
 @endereco VARCHAR(255),

@@ -16,6 +16,7 @@ CREATE TABLE PessoaFisica (
     data_nascimento DATE,
     FOREIGN KEY (codigo_pessoaFisica) REFERENCES Pessoa(codigo_pessoa)
 );
+CREATE INDEX idx_pessoaFisica_pessoa ON PessoaFisica (codigo_pessoaFisica);
 
 CREATE TABLE PessoaJuridica (
     codigo_pessoaJuridica INT PRIMARY KEY,
@@ -26,12 +27,15 @@ CREATE TABLE PessoaJuridica (
     inscricao_estadual VARCHAR(20),
     FOREIGN KEY (codigo_pessoaJuridica) REFERENCES Pessoa(codigo_pessoa)
 );
+CREATE INDEX idx_pessoaJuridica_pessoa ON PessoaJuridica (codigo_pessoaJuridica);
 
 CREATE TABLE Funcionario (
     codigo_funcionario INT PRIMARY KEY,
     salario DECIMAL(10, 2),
     FOREIGN KEY (codigo_funcionario) REFERENCES PessoaFisica(codigo_pessoaFisica)
 );
+CREATE INDEX idx_funcionario_pessoaFisica ON Funcionario (codigo_funcionario);
+
 
 CREATE TABLE Cliente (
     codigo_cliente INT PRIMARY KEY,
@@ -41,6 +45,8 @@ CREATE TABLE Cliente (
     FOREIGN KEY (codigo_pessoaFisica) REFERENCES PessoaFisica(codigo_pessoaFisica),
     FOREIGN KEY (codigo_pessoaJuridica) REFERENCES PessoaJuridica(codigo_pessoaJuridica)
 );
+CREATE INDEX idx_cliente_pessoaFisica ON Cliente (codigo_pessoaFisica);
+CREATE INDEX idx_cliente_pessoaJuridica ON Cliente (codigo_pessoaJuridica);
 
 CREATE TABLE Modelo (
     codigo_modelo INT PRIMARY KEY,
@@ -65,7 +71,6 @@ CREATE TABLE Revisao (
 
 CREATE TABLE Carro (
     codigo_carro INT PRIMARY KEY,
-    numero_chassi VARCHAR(17) NOT NULL UNIQUE,
     cor VARCHAR(50),
     preco DECIMAL(10, 2),
     quantidade_estoque INT,
@@ -74,6 +79,8 @@ CREATE TABLE Carro (
     FOREIGN KEY (codigo_modelo) REFERENCES Modelo(codigo_modelo),
     FOREIGN KEY (codigo_revisao) REFERENCES Revisao(codigo_revisao)
 );
+CREATE INDEX idx_carro_modelo ON Carro (codigo_modelo);
+CREATE INDEX idx_carro_revisao ON Carro (codigo_revisao);
 
 CREATE TABLE Nota_Fiscal (
     codigo_notaFiscal INT PRIMARY KEY,
@@ -91,6 +98,9 @@ CREATE TABLE Nota_Fiscal (
     FOREIGN KEY (codigo_cliente) REFERENCES Cliente(codigo_cliente),
     FOREIGN KEY (codigo_carro) REFERENCES Carro(codigo_carro)
 );
+CREATE INDEX idx_notaFiscal_funcionario ON Nota_Fiscal (codigo_funcionario);
+CREATE INDEX idx_notaFiscal_cliente ON Nota_Fiscal (codigo_cliente);
+CREATE INDEX idx_notaFiscal_carro ON Nota_Fiscal (codigo_carro);
 
 CREATE TABLE Fornecedor(
 	codigo_fornecedor INT PRIMARY KEY,
@@ -103,11 +113,11 @@ CREATE TABLE Acessorio (
     descricao VARCHAR(255),
     preco DECIMAL(10, 2),
     categoria VARCHAR(50),
-    compatibilidade VARCHAR(255),
     quantidade_estoque INT,
     codigo_fornecedor INT,
     FOREIGN KEY (codigo_fornecedor) REFERENCES Fornecedor(codigo_fornecedor)
 );
+CREATE INDEX idx_acessorio_fornecedor ON Acessorio (codigo_fornecedor);
 
 CREATE TABLE Pedido (
     codigo_pedido INT PRIMARY KEY,
@@ -122,6 +132,7 @@ CREATE TABLE Pedido (
     codigo_cliente INT,
     FOREIGN KEY (codigo_cliente) REFERENCES Cliente(codigo_cliente)
 );
+CREATE INDEX idx_pedido_cliente ON Pedido (codigo_cliente);
 
 CREATE TABLE ItemPedido (
     codigo_pedido INT,
@@ -131,3 +142,5 @@ CREATE TABLE ItemPedido (
     FOREIGN KEY (codigo_pedido) REFERENCES Pedido(codigo_pedido),
     FOREIGN KEY (codigo_acessorio) REFERENCES Acessorio(codigo_acessorio)
 );
+CREATE INDEX idx_itemPedido_pedido ON ItemPedido (codigo_pedido);
+CREATE INDEX idx_itemPedido_acessorio ON ItemPedido (codigo_acessorio);

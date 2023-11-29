@@ -1,4 +1,4 @@
--- iniciar Pedido
+-- iniciar Pedido (FINALIZADO)
 CREATE PROCEDURE iniciarPedido
 @codigo_pedido INT,
 @codigo_cliente INT
@@ -8,12 +8,12 @@ SET @status = 'Vazio';
 INSERT INTO Pedido(codigo_pedido, status, codigo_cliente)
 VALUES (@codigo_pedido, @status, @codigo_cliente);
 
--- adicionar Item ao Pedido
+-- adicionar Item ao Pedido (FINALIZADO)
 -- Se status de pedido = 'Vazio', mudar status para 'Pendente'
 -- Verificar se o estoque possui a quantidade de acessorios solicitada
 -- Inserir acessorio e quantidade na tabela ItemPedido
--- Alterar a quantidade de acessorios na tabela Acessorios
--- Alterar o valor total de pedido
+-- Gatilhos: Alterar a quantidade de acessorios na tabela Acessorios
+-- Gatilhos: Alterar o valor total de pedido
 
 CREATE PROCEDURE adicionarItemPedido
 @codigo_pedido INT,
@@ -21,6 +21,8 @@ CREATE PROCEDURE adicionarItemPedido
 @quantidade_solicitada INT
 AS
 BEGIN TRANSACTION
+    SET NOCOUNT ON;
+
     -- Verificar o status atual do pedido
     DECLARE @status_pedido VARCHAR(50);
 
@@ -34,55 +36,47 @@ BEGIN TRANSACTION
         SET status = 'Pendente'
         WHERE codigo_pedido = @codigo_pedido;
     END
-
-    -- Verificar se o estoque possui a quantidade de acessorios solicitada
-    DECLARE @quantidade_estoque INT;
-
-    SELECT @quantidade_estoque = quantidade_estoque
-    FROM Acessorio
-    WHERE codigo_acessorio = @codigo_acessorio;
-
-    IF @quantidade_estoque < @quantidade_solicitada
+    
+    IF @status_pedido = 'Finalizado'
     BEGIN
+		PRINT 'Não é possível adicionar itens a um pedido finalizado.';
         ROLLBACK TRANSACTION;
-		RETURN;
     END
+
     -- Inserir acessorio e quantidade na tabela ItemPedido
+    INSERT INTO ItemPedido (codigo_pedido, codigo_acessorio, quantidade_pedido)
+    VALUES (@codigo_pedido, @codigo_acessorio, @quantidade_solicitada);
+    IF @@ROWCOUNT > 0
+        COMMIT TRANSACTION;
     ELSE
-    BEGIN
-        INSERT INTO ItemPedido (codigo_pedido, codigo_acessorio, quantidade_pedido)
-        VALUES (@codigo_pedido, @codigo_acessorio, @quantidade_solicitada);
+        ROLLBACK TRANSACTION;
 
-        
-        -- Alterar a quantidade de acessorios na tabela Acessorios
-        IF @@ROWCOUNT > 0
-        BEGIN
-            UPDATE Acessorio
-            SET quantidade_estoque = quantidade_estoque - @quantidade_solicitada
-            WHERE codigo_acessorio = @codigo_acessorio;
+-- (FINALIZADO)
+CREATE PROCEDURE removerItemPedido
+@codigo_pedido INT,
+@codigo_acessorio INT
+AS
+BEGIN TRANSACTION
+    DELETE FROM ItemPedido
+    WHERE codigo_pedido = @codigo_pedido AND codigo_acessorio = @codigo_acessorio;
+    IF @@ROWCOUNT > 0
+        COMMIT TRANSACTION;
+    ELSE
+        ROLLBACK TRANSACTION;
 
-            -- Alterar o valor total de pedido
-            IF @@ROWCOUNT > 0
-            BEGIN
-                UPDATE Pedido
-                SET valor_total = (SELECT SUM(IP.quantidade_pedido * A.preco)
-                                                FROM ItemPedido IP
-                                                JOIN Acessorio A
-                                                ON IP.codigo_acessorio = A.codigo_acessorio
-                                                WHERE IP.codigo_pedido = @codigo_pedido)
-				WHERE codigo_pedido = @codigo_pedido;
-
-                IF @@ROWCOUNT > 0
-                    COMMIT TRANSACTION;
-                ELSE
-                    ROLLBACK TRANSACTION;
-            END
-            ELSE
-                ROLLBACK TRANSACTION;
-        END
-        ELSE
-            ROLLBACK TRANSACTION;
-    END
+CREATE PROCEDURE alterarItemPedido
+@codigo_pedido INT,
+@codigo_acessorio INT,
+@quantidade_pedido INT
+AS
+BEGIN TRANSACTION
+    UPDATE ItemPedido
+    SET quantidade_pedido = @quantidade_pedido
+    WHERE codigo_pedido = @codigo_pedido AND codigo_acessorio = @codigo_acessorio;
+    IF @@ROWCOUNT > 0
+        COMMIT TRANSACTION;
+    ELSE
+        ROLLBACK TRANSACTION;
 
 -- Cancelar pedido
 --  1. Para cada ItemPedido, alterar quantidade_estoque 
@@ -124,4 +118,22 @@ BEGIN TRANSACTION
 END
 
 -- Finalizar pedido
--- Alterar as quantidades de cada 
+CREATE PROCEDURE finalizarPedido
+@codigo_pedido INT,
+@data DATE,
+@hora TIME,
+@metodo_pagamento VARCHAR(50),
+@desconto DECIMAL(10,2),
+@parcelas INT,
+@juros DECIMAL(5,2)
+AS
+BEGIN TRANSACTION
+    UPDATE Pedido
+    SET data = @data, hora = @hora, status = 'Finalizado', metodo_pagamento = @metodo_pagamento, desconto = @desconto, parcelas = @parcelas, juros = @juros
+    WHERE codigo_pedido = @codigo_pedido;
+    IF @@ROWCOUNT > 0
+        COMMIT TRANSACTION;
+    ELSE
+        ROLLBACK TRANSACTION;
+
+EXEC finalizarPedido @codigo_pedido = 1, @data = '2023-11-28', @hora = '15:30:00', @metodo_pagamento = 'Cartão de crédito', @desconto = 0.00, @parcelas = 3, @juros = 0.00;

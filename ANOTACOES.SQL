@@ -1,0 +1,2 @@
+-- Alterar o diagrama entidade relacionamento, tirar os atributos: NUMERO_CHASSI e COMPATIBILIDADE
+-- Procedure removerAcessorio deverá remover todos os ItemPedido que referencia Acessorio
